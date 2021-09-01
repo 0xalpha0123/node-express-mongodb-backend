@@ -1,38 +1,109 @@
-var User = require('mongoose').model('User'),
-    passport = require('passport');
+import User from '../models/user.model';
 
-var getErrorMessage = function(err) {
-    var message = '';
-
-    if (err.code) {
-        switch (err.code) {
-            case 11000:
-            case 11001:
-                message = 'Username already exists';
-                break;
-            default:
-                message = 'Something went wrong';
-        }
-    } else {
-        for (var errName in err.errors) {
-            if (err.erros[errName].message)
-                message = err.erros[errName].message;
-        }
-    }
-
-    return message;
+import HTTPStatus from 'http-status';
+import Joi from 'joi';
+ 
+export const validation = {
+  login: {
+    body: {
+      email: Joi.string()
+        .email()
+        .required(),
+      password: Joi.string()
+        .regex(/^[a-zA-Z0-9]{3,30}$/)
+        .required(),
+    },
+  },
+  create: {
+    body: {
+      email: Joi.string()
+        .email()
+        .required(),
+      password: Joi.string()
+        .min(6)
+        .regex(/^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$/)
+        .required(),
+      username: Joi.string()
+        .min(3)
+        .max(20)
+        .required(),
+    },
+  },
 };
 
-exports.signup = function(req, res, next) {
-    if (!req.user) {
-        var user = new User(req.body);
-        var message = null;
+ 
+ /**
+  * @api {post} /users/login Login a user
+  * @apiDescription Login a user
+  * @apiName loginUser
+  * @apiGroup User
+  *
+  * @apiParam (Body) {String} email User email.
+  * @apiParam (Body) {String} password User password.
+  *
+  * @apiSuccess {Number} status Status of the Request.
+  * @apiSuccess {String} _id User _id.
+  * @apiSuccess {String} token Authentication token.
+  *
+  * @apiSuccessExample Success-Response:
+  *
+  * HTTP/1.1 200 OK
+  *
+  * {
+  *  _id: '123',
+  *  token: 'JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OTBhMWI3ODAzMDI3N2NiNjQxM2JhZGUiLCJpYXQiOjE0OTM4MzQ2MTZ9.RSlMF6RRwAALZQRdfKrOZWnuHBk-mQNnRcCLJsc8zio',
+  * }
+  *
+  * @apiErrorExample {json} Error
+  *  HTTP/1.1 400 Bad Request
+  *
+  *  {
+  *    email: 'email is required'
+  *  }
+  */
+ 
+export async function login(req, res, next) {
+  res.status(HTTPStatus.OK).json(req.user.toAuthJSON());
 
-        user.save(function(err) {
-            if (err) {
-                var message = getErrorMessage(err);
-                res.json(message);
-            }
-        })
-    }
+  return next();
 }
+
+/**
+ * @api {post} /users/signup Create a user
+ * @apiDescription Create a user
+ * @apiName createUser
+ * @apiGroup User
+ *
+ * @apiParam (Body) {String} email User email.
+ * @apiParam (Body) {String} password User password.
+ * @apiParam (Body) {String} username User username.
+ *
+ * @apiSuccess {Number} status Status of the Request.
+ * @apiSuccess {String} _id User _id.
+ * @apiSuccess {String} token Authentication token.
+ *
+ * @apiSuccessExample Success-Response:
+ *
+ * HTTP/1.1 200 OK
+ *
+ * {
+ *  _id: '123',
+ *  token: 'JWT eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1OTBhMWI3ODAzMDI3N2NiNjQxM2JhZGUiLCJpYXQiOjE0OTM4MzQ2MTZ9.RSlMF6RRwAALZQRdfKrOZWnuHBk-mQNnRcCLJsc8zio',
+ * }
+ *
+ * @apiErrorExample {json} Error
+ *  HTTP/1.1 400 Bad Request
+ *
+ *  {
+ *    email: 'email is required'
+ *  }
+ */
+export async function create(req, res, next) {
+    try {
+      const user = await User.create(req.body);
+      return res.status(HTTPStatus.CREATED).json(user.toAuthJSON());
+    } catch (e) {
+      e.status = HTTPStatus.BAD_REQUEST;
+      return next(e);
+    }
+  }

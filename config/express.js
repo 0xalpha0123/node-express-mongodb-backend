@@ -4,7 +4,10 @@ var config = require('./config'),
     compress = require('compression'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override')
-    passport = require('passport');
+    passport = require('passport'),
+    helmet = require('helmet'),
+    cors = require('cors'),
+    ApiRoutes = require('./routes');
 
 module.exports = function () {
     var app = express();
@@ -29,9 +32,13 @@ module.exports = function () {
 
     app.use(passport.initialize());
     app.use(passport.session());
+    app.use(helmet());
+    app.use(cors());
 
-    require('../app/routes/index.routes.js') (app);
-    require('../app/routes/users.routes.js') (app);
+    app.use('/api', ApiRoutes);
+
+    // require('../app/routes/index.routes.js') (app);
+    // require('../app/routes/users.routes.js') (app);
 
     app.use(express.static('./public'));
 

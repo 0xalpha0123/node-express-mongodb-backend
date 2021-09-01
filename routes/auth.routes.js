@@ -1,10 +1,20 @@
-var auth = require('../controllers/auth.controller'),
-    passport = require('passport');
+import { Router } from 'express';
+import validate from 'express-validation';
+import * as AuthController from '../controllers/auth.controller';
+import { authLocal } from '../middlewares/auth';
+ 
+const routes = new Router();
 
-module.exports = function(app) {
-    app.route('/signup')
-        .post(users.signup);
-    
-    app.route('/signin')
-        .post(passport.authenticate('local'));
-}
+routes.post(
+    '/signup',
+    validate(AuthController.validation.create),
+    AuthController.create,
+);
+routes.post(
+    '/login',
+    validate(AuthController.validation.login),
+    authLocal,
+    AuthController.login,
+);
+
+export default routes;
