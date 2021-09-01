@@ -17,4 +17,5 @@ module.exports = function() {
     });
 
     require('./strategies/local.js')();
+    require('./strategies/jwt.js')();
 }
