@@ -1,20 +1,20 @@
-var config = require('./config'),
-    express = require('express'),
-    morgan = require('morgan'),
-    compress = require('compression'),
-    bodyParser = require('body-parser'),
-    methodOverride = require('method-override')
-    passport = require('passport'),
-    helmet = require('helmet'),
-    cors = require('cors'),
-    ApiRoutes = require('./routes');
+const express = require('express');
+const morgan = require('morgan');
+const compress = require('compression');
+const bodyParser = require('body-parser');
+const methodOverride = require('method-override');
+const passport = require('passport');
+const helmet = require('helmet');
+const cors = require('cors');
+const ApiRoutes = require('../routes');
+const path = require('path');
 
 module.exports = function () {
     var app = express();
 
-    if (process.env.NODE_DEV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
         app.use(morgan('dev'));
-    } else if (process.env.NODE_DEV === 'production') {
+    } else if (process.env.NODE_ENV === 'production') {
         app.use(compress());
     }
 
@@ -24,23 +24,17 @@ module.exports = function () {
     app.use(bodyParser.json());
     app.use(methodOverride());
 
-    app.use(session({
-        saveUninitialized: true,
-        resave: true,
-        secret: config.sessionSecret
-    }));
-
     app.use(passport.initialize());
     app.use(passport.session());
     app.use(helmet());
     app.use(cors());
 
-    app.use('/api', ApiRoutes);
+    app.use(`/${process.env.API}`, ApiRoutes);
 
     // require('../app/routes/index.routes.js') (app);
     // require('../app/routes/users.routes.js') (app);
 
-    app.use(express.static('./public'));
+    app.use(express.static(path.join(__dirname, "public")));
 
     return app;
 }

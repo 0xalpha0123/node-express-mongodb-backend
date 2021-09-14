@@ -1,22 +1,24 @@
-var passport = require('passport'),
-    User = require('mongoose').model('User');
+const passport = require('passport');
+const User = require('mongoose').model('User');
 
-import { Strategy as JWTStrategy, ExtractJwt } from 'passport-jwt';
-
+const JWTStrategy = require('passport-jwt').Strategy;
+const ExtractJwt = require('passport-jwt').ExtractJwt;
 
 /**
  * JWT Strategy Auth
  */
 const jwtOpts = {
     // Telling Passport to check authorization headers for JWT
-    jwtFromRequest: ExtractJwt.fromAuthHeaderWithScheme('JWT'),
+    jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     // Telling Passport where to find the secret
-    secretOrKey: constants.JWT_SECRET,
+    secretOrKey: process.env.JWT_SECRET,
 };
 
 module.exports = function() {
-    passport.use(new JWTStrategy(jwtOpts, function(payload, done){
-        User.findById(payload._id , function(err, user) {
+    passport.use(
+        'jwt',
+        new JWTStrategy(jwtOpts, function(payload, done){
+        User.findById(payload._id).then((user, err) => {
             if (err) {
                 return done(err, false);
             }

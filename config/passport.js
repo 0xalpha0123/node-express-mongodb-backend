@@ -1,5 +1,5 @@
-var passport = require('passport'),
-    mongoose = require('mongoose');
+const passport = require('passport');
+const mongoose = require('mongoose');
 
 module.exports = function() {
     var User = mongoose.model('User');
@@ -16,6 +16,7 @@ module.exports = function() {
         });
     });
 
-    require('./strategies/local.js')();
+    require('./strategies/register.js')();
+    require('./strategies/login.js')();
     require('./strategies/jwt.js')();
 }
