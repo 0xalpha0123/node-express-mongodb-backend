@@ -1,15 +1,15 @@
-process.env.NODE_ENV = process.env.NODE_ENV || 'development';
+require('dotenv').config()
 
-var mongoose = require('./config/mongoose'),
-    express = require('./config/express'),
-    passport = require('./config/passport');
+const mongoose = require('./config/mongoose');
+const express = require('./config/express');
+const passport = require('./config/passport');
 
-var db = mongoose();
-var app = express();
-var passport = passport();
+const db = mongoose();
+const app = express();
+const passprt = passport();
 
-app.listen(3000);
+app.listen(process.env.PORT || 3123);
 
-console.log('Server running at http://localhost:3000/');
+console.log(`Server running at http://localhost:/${process.env.PORT || 3123}`);
 
 module.exports = app;

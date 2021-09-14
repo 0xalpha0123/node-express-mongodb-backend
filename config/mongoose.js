@@ -10,9 +10,9 @@ module.exports = function() {
     
     // Connect the db with the url provide
     try {
-        var db = mongoose.connect(config.db);
+        var db = mongoose.connect(process.env.DB_URL);
     } catch (err) {
-        var db = mongoose.createConnection(config.db);
+        var db = mongoose.createConnection(process.env.DB_URL);
     }
     
     mongoose.connection
@@ -21,7 +21,7 @@ module.exports = function() {
         throw e;
       });
 
-    require('../models/user.models');
+    require('../models/user.model');
 
     return db;
 };
