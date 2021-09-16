@@ -1,3 +1,7 @@
+const fs = require('fs');
+var INIT_CWD = process.env.INIT_CWD;
+const PUBLIC_KEY = fs.readFileSync(INIT_CWD + '/keys/JWT/public.pem', 'utf-8');
+
 const passport = require('passport');
 const User = require('mongoose').model('User');
 
@@ -11,7 +15,8 @@ const jwtOpts = {
     // Telling Passport to check authorization headers for JWT
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
     // Telling Passport where to find the secret
-    secretOrKey: process.env.JWT_SECRET,
+    secretOrKey: PUBLIC_KEY,
+    algorithms: ['RS256']
 };
 
 module.exports = function() {
