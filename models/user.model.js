@@ -2,6 +2,10 @@ const {compareSync, hashSync} = require('bcrypt-nodejs');
 const {Schema, model} = require('mongoose');
 const jwt = require('jsonwebtoken');
 
+const fs = require('fs');
+var INIT_CWD = process.env.INIT_CWD;
+const PRIVATE_KEY = fs.readFileSync(INIT_CWD + '/keys/JWT/private.pem','utf-8');
+
 const UserSchema = new Schema(
     {
         email: {
@@ -82,9 +86,10 @@ UserSchema.methods = {
             {
                 _id: this._id,
             },
-            process.env.JWT_SECRET,
+            PRIVATE_KEY,
             {
-                expiresIn: process.env.EXPIRESIN
+                expiresIn: process.env.EXPIRESIN,
+                algorithm: 'RS256',
             }
         );
     },

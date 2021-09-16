@@ -1,5 +1,4 @@
-var config = require('./config'),
-    mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 module.exports = function() {
     // Remove the warning with Promise

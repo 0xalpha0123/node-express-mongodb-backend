@@ -12,7 +12,7 @@ authCtrl.register = (req, res, next) => {
     })
     .then(user => {
         user.updateOne(data)
-        .then(user => {
+        .then(result => {
             res.status(200).send(user.toAuthJSON());
         })
     })
